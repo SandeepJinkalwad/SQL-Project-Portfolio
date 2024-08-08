@@ -1,0 +1,13 @@
+--7- which card and expense type combination saw highest month over month growth in Jan-2014
+with highest_growth as(
+select card_type,exp_type,
+format(transaction_date,'yyyyMM') as Year_Month,
+sum(amount) as total_spent
+from credit_card_transcations
+group by card_type,exp_type,format(transaction_date,'yyyyMM'))
+select top 1 *, (total_spent-previous_month_growth) as mom_growth
+from (select * ,
+lag(total_spent,1) over (partition by card_type,exp_type order by Year_Month) as previous_month_growth
+from highest_growth) a
+where previous_month_growth is not null and Year_Month='201401'
+order by mom_growth desc
