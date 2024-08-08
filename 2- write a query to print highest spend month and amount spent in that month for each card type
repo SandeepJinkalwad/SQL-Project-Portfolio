@@ -1,0 +1,10 @@
+  ---2- write a query to print highest spend month and amount spent in that month for each card type
+   
+select * from credit_card_transcations
+	with high_spend as(
+	select card_type,datepart(month,transaction_date) as month,sum(amount) as highest_spend
+	from credit_card_transcations
+	group by card_type,datepart(month,transaction_date))
+	select * from (select *, rank() over(partition by card_type order by highest_spend desc) as rank
+	from high_spend) a
+	where rank=1
